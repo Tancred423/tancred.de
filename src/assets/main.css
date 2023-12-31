@@ -1,0 +1,25 @@
+@import './base.css';
+
+#app {
+  margin: 0 auto;
+  max-width: 1230px;
+}
+
+a,
+.primary-color {
+  color: var(--primary-color);
+  text-decoration: none;
+  transition: 0.4s;
+}
+
+@media (hover: hover) {
+  a:hover {
+    color: var(--primary-color-mute);
+  }
+}
+
+@media (min-width: 1024px) {
+  body {
+    align-items: center;
+  }
+}

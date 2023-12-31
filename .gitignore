@@ -1,0 +1,8 @@
+# IDE files
+.vscode
+
+# Generated output
+dist
+
+# Dependency directories
+node_modules
