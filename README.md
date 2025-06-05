@@ -6,4 +6,4 @@ It serves as a landing hub for all my projects.
 
 ### Credits
 
-Servant Logo by [navu](https://twitter.com/navukyo)
+Servant Logo by [navu](https://x.com/akokuse)
