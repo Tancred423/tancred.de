@@ -15,7 +15,7 @@ services:
     ports:
       - "8000:8000"
     networks:
-      - mysql-server
+      - mysql-network
     restart: unless-stopped
 
   frontend:
@@ -30,10 +30,10 @@ services:
     depends_on:
       - backend
     networks:
-      - mysql-server
+      - mysql-network
     restart: unless-stopped
 
 networks:
-  mysql-server:
+  mysql-network:
     external: true
 
