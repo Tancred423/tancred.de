@@ -13,9 +13,7 @@
           <div class="title-bottom">{{ titleBox.bottom }}</div>
         </div>
       </h3>
-      <p v-if="project.description" class="project-description">
-        {{ project.description }}
-      </p>
+      <p v-if="project.description" class="project-description" v-html="parseMarkdownLinks(project.description)"></p>
       <div class="project-url">
         <code>--> {{ formatUrl(project.url) }}</code>
       </div>
@@ -47,6 +45,24 @@ const formatUrl = (url: string) => {
   } catch {
     return url
   }
+}
+
+const parseMarkdownLinks = (text: string): string => {
+  if (!text) return ''
+  
+  // Escape HTML to prevent XSS, then convert markdown links
+  const escaped = text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+  
+  // Convert markdown links [text](url) to HTML links
+  return escaped.replace(/\[([^\]]+)\]\(([^\)]+)\)/g, (match, linkText, url) => {
+    // Escape the URL and link text
+    const safeUrl = url.replace(/&amp;/g, '&').replace(/"/g, '&quot;')
+    const safeText = linkText.replace(/&amp;/g, '&')
+    return `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="description-link">${safeText}</a>`
+  })
 }
 
 const MAX_LINE_LENGTH = 30
@@ -152,5 +168,16 @@ const titleBox = computed(() => {
 .project-url code {
   color: var(--accent);
   font-size: 0.9rem;
+  word-break: break-all;
+  overflow-wrap: break-word;
+}
+
+.description-link {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.description-link:hover {
+  opacity: 0.8;
 }
 </style>
