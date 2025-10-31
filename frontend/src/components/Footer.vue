@@ -6,7 +6,7 @@
           <pre class="ascii-divider">
 +---------------------------------------+
           </pre>
-          <p>&copy; {{ currentYear }} Tancred Development</p>
+          <p>&copy; {{ currentYear }} Tancred</p>
         </div>
         <router-link to="/privacy" class="footer-link"> [ privacy policy ] </router-link>
       </div>
