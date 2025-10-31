@@ -26,7 +26,7 @@ services:
         VITE_SHORTENER_DOMAIN: ${SHORTENER_DOMAIN}
     container_name: tancred-frontend-prod
     ports:
-      - "80:80"
+      - "8083:80"
     depends_on:
       - backend
     networks:
