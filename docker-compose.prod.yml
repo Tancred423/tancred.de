@@ -15,7 +15,9 @@ services:
     ports:
       - "8001:8000"
     networks:
-      - mysql-network
+      mysql-network:
+        aliases:
+          - backend
     restart: unless-stopped
 
   frontend:
