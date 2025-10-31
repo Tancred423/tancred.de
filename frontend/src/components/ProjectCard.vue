@@ -13,7 +13,11 @@
           <div class="title-bottom">{{ titleBox.bottom }}</div>
         </div>
       </h3>
-      <p v-if="project.description" class="project-description" v-html="parseMarkdownLinks(project.description)"></p>
+      <p
+        v-if="project.description"
+        class="project-description"
+        v-html="parseMarkdownLinks(project.description)"
+      ></p>
       <div class="project-url">
         <code>--> {{ formatUrl(project.url) }}</code>
       </div>
@@ -49,13 +53,10 @@ const formatUrl = (url: string) => {
 
 const parseMarkdownLinks = (text: string): string => {
   if (!text) return ''
-  
+
   // Escape HTML to prevent XSS, then convert markdown links
-  const escaped = text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-  
+  const escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+
   // Convert markdown links [text](url) to HTML links
   return escaped.replace(/\[([^\]]+)\]\(([^\)]+)\)/g, (match, linkText, url) => {
     // Escape the URL and link text
