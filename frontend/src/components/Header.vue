@@ -86,6 +86,18 @@ header {
   text-decoration: none;
 }
 
+.logo:hover {
+  text-decoration: none;
+}
+
+.header-actions a {
+  text-decoration: none;
+}
+
+.header-actions a:hover {
+  text-decoration: none;
+}
+
 .visually-hidden {
   border: 0;
   clip: rect(0, 0, 0, 0);
