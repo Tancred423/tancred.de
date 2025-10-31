@@ -24,6 +24,7 @@ services:
       dockerfile: Dockerfile
       args:
         VITE_SHORTENER_DOMAIN: ${SHORTENER_DOMAIN}
+        VITE_API_URL: /api
     container_name: tancred-frontend-prod
     ports:
       - "8083:80"

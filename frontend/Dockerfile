@@ -2,9 +2,12 @@ FROM node:22.21.1 AS builder
 
 WORKDIR /app
 
-# Build argument for shortener domain (required - must be provided via build args)
+# Build arguments for environment variables
 ARG VITE_SHORTENER_DOMAIN
 ENV VITE_SHORTENER_DOMAIN=${VITE_SHORTENER_DOMAIN}
+
+ARG VITE_API_URL
+ENV VITE_API_URL=${VITE_API_URL}
 
 # Copy package files
 COPY package*.json ./
