@@ -20,7 +20,7 @@
 
         <div v-else-if="projects.length === 0" class="no-projects">No projects yet.</div>
 
-        <div v-else class="projects-grid">
+        <div v-else :class="gridClass">
           <ProjectCard v-for="project in projects" :key="project.id" :project="project" />
         </div>
       </section>
@@ -29,7 +29,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 import ProjectCard from '../components/ProjectCard.vue'
 
@@ -47,6 +47,13 @@ interface Project {
 const projects = ref<Project[]>([])
 const loading = ref(true)
 const error = ref<string | null>(null)
+
+const gridClass = computed(() => {
+  if (projects.value.length === 4) {
+    return 'projects-grid-2x2'
+  }
+  return 'projects-grid'
+})
 
 const fetchProjects = async () => {
   try {
@@ -98,6 +105,12 @@ onMounted(() => {
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
 }
 
+.projects-grid-2x2 {
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: repeat(2, 1fr);
+}
+
 .loading,
 .error,
 .no-projects {
@@ -113,7 +126,8 @@ onMounted(() => {
 }
 
 @media (max-width: 768px) {
-  .projects-grid {
+  .projects-grid,
+  .projects-grid-2x2 {
     grid-template-columns: 1fr;
   }
 
