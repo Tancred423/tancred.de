@@ -1,8 +1,22 @@
-# IDE files
-.vscode
+node_modules/
+dist/
+*.log
+.env
+.env.local
+.env.*.local
+deno-dir/
 
-# Generated output
-dist
+# Docker volumes
+mysql-data/
 
-# Dependency directories
-node_modules
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+Thumbs.db
+.DS_Store
+

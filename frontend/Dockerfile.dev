@@ -1,0 +1,22 @@
+FROM node:22.21.1
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+# Use npm ci if package-lock.json exists, otherwise npm install
+RUN if [ -f package-lock.json ]; then \
+      npm ci --prefer-offline; \
+    else \
+      npm install; \
+    fi
+
+# Copy application files
+COPY . .
+
+EXPOSE 5173
+
+CMD ["npm", "run", "dev"]
+

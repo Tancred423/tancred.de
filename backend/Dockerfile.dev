@@ -1,0 +1,17 @@
+FROM denoland/deno:2.5.4
+
+WORKDIR /app
+
+ENV DENO_DIR=/deno-dir
+
+COPY deno.json .
+COPY deno.lock* .
+
+RUN deno cache --reload deno.json || true
+
+COPY . .
+
+EXPOSE 8000
+
+CMD ["deno", "task", "dev"]
+

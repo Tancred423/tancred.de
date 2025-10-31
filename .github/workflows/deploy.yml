@@ -1,0 +1,92 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  lint-and-format:
+    name: Lint and Format Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v2.x
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Check frontend formatting
+        working-directory: frontend
+        run: npx prettier --check src/
+
+      - name: Lint frontend
+        working-directory: frontend
+        run: npm run lint
+
+      - name: Check backend formatting
+        working-directory: backend
+        run: deno fmt --check
+
+      - name: Lint backend
+        working-directory: backend
+        run: deno lint
+
+  deploy:
+    name: Deploy to Server
+    runs-on: ubuntu-latest
+    needs: lint-and-format
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Add server to known hosts
+        run: |
+          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to server
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+            set -e
+            cd ~/tancred.de
+            
+            # Pull latest changes
+            git fetch origin
+            git reset --hard origin/main || git reset --hard origin/master
+            
+            # Stop existing containers
+            docker compose -f docker-compose.prod.yml down || true
+            
+            # Pull latest images
+            docker compose -f docker-compose.prod.yml pull
+            
+            # Build and start containers
+            docker compose -f docker-compose.prod.yml up -d --build
+            
+            # Clean up old images
+            docker image prune -f
+            
+            echo "Deployment completed successfully"
+          EOF
+

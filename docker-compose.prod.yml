@@ -1,0 +1,39 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: tancred-backend-prod
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      CORS_ORIGIN: ${CORS_ORIGIN}
+      ADMIN_USERNAME: ${ADMIN_USERNAME}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      SHORTENER_DOMAIN: ${SHORTENER_DOMAIN}
+      MAIN_SITE_URL: ${MAIN_SITE_URL}
+    ports:
+      - "8000:8000"
+    networks:
+      - mysql-server
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_SHORTENER_DOMAIN: ${SHORTENER_DOMAIN}
+    container_name: tancred-frontend-prod
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - mysql-server
+    restart: unless-stopped
+
+networks:
+  mysql-server:
+    external: true
+
