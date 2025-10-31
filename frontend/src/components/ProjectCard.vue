@@ -3,7 +3,7 @@
     <div v-if="project.imageUrl" class="project-image">
       <img :src="project.imageUrl" :alt="project.title" />
     </div>
-    <div class="project-content">
+    <div ref="containerRef" class="project-content">
       <h3 class="project-title">
         <div class="ascii-title-box">
           <div class="title-top">{{ titleBox.top }}</div>
@@ -26,7 +26,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, onMounted, onUnmounted, nextTick } from 'vue'
 
 interface Project {
   id: number
@@ -40,6 +40,10 @@ interface Project {
 const props = defineProps<{
   project: Project
 }>()
+
+const containerRef = ref<HTMLElement | null>(null)
+const containerWidth = ref(350)
+let resizeObserver: ResizeObserver | null = null
 
 const formatUrl = (url: string) => {
   try {
@@ -63,11 +67,37 @@ const parseMarkdownLinks = (text: string): string => {
   })
 }
 
-const MAX_LINE_LENGTH = 30
-const MIN_BOX_WIDTH = 30
+const updateContainerWidth = () => {
+  if (containerRef.value) {
+    containerWidth.value = containerRef.value.offsetWidth
+  }
+}
+
+onMounted(() => {
+  nextTick(() => {
+    updateContainerWidth()
+    resizeObserver = new ResizeObserver(updateContainerWidth)
+    if (containerRef.value) {
+      resizeObserver.observe(containerRef.value)
+    }
+  })
+})
+
+onUnmounted(() => {
+  if (resizeObserver) {
+    resizeObserver.disconnect()
+  }
+})
+
+const CHAR_WIDTH_PX = 8.64
 
 const titleBox = computed(() => {
   const title = props.project.title
+  const availableWidth = containerWidth.value - 40
+  const maxChars = Math.floor(availableWidth / CHAR_WIDTH_PX)
+  const MAX_LINE_LENGTH = Math.max(maxChars - 4, 30)
+  const MIN_BOX_WIDTH = Math.max(maxChars - 4, 30)
+
   const lines: string[] = []
 
   if (title.length <= MAX_LINE_LENGTH) {
