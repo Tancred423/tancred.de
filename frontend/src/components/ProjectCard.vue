@@ -93,7 +93,7 @@ const CHAR_WIDTH_PX = 8.64
 
 const titleBox = computed(() => {
   const title = props.project.title
-  const availableWidth = containerWidth.value - 20
+  const availableWidth = containerWidth.value - 15
   const maxChars = Math.floor(availableWidth / CHAR_WIDTH_PX)
   const MAX_LINE_LENGTH = Math.max(maxChars - 4, 30)
   const MIN_BOX_WIDTH = Math.max(maxChars - 4, 30)
