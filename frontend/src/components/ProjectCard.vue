@@ -54,12 +54,9 @@ const formatUrl = (url: string) => {
 const parseMarkdownLinks = (text: string): string => {
   if (!text) return ''
 
-  // Escape HTML to prevent XSS, then convert markdown links
   const escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 
-  // Convert markdown links [text](url) to HTML links
-  return escaped.replace(/\[([^\]]+)\]\(([^\)]+)\)/g, (match, linkText, url) => {
-    // Escape the URL and link text
+  return escaped.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_match, linkText, url) => {
     const safeUrl = url.replace(/&amp;/g, '&').replace(/"/g, '&quot;')
     const safeText = linkText.replace(/&amp;/g, '&')
     return `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="description-link">${safeText}</a>`
