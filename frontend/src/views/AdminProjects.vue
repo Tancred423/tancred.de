@@ -19,7 +19,7 @@
 
             <div v-if="project.description" class="project-field">
               <span class="field-label">Description:</span>
-              <span class="field-value">{{ project.description }}</span>
+              <span class="field-value description-text">{{ project.description }}</span>
             </div>
 
             <div class="project-field">
@@ -175,6 +175,10 @@ onMounted(() => {
 
 .field-value {
   color: var(--text-primary);
+}
+
+.description-text {
+  white-space: pre-line;
 }
 
 .project-link {

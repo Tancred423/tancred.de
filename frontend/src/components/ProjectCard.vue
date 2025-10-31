@@ -140,6 +140,7 @@ const titleBox = computed(() => {
 .project-description {
   color: var(--text-secondary);
   margin-bottom: 1rem;
+  white-space: pre-line;
 }
 
 .project-url {
