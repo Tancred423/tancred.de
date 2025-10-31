@@ -75,8 +75,9 @@ jobs:
             git fetch origin
             git reset --hard origin/main || git reset --hard origin/master
             
-            # Stop existing containers
+            # Stop and remove existing containers
             docker compose -f docker-compose.prod.yml down || true
+            docker rm -f tancred-backend-prod tancred-frontend-prod || true
             
             # Pull latest images
             docker compose -f docker-compose.prod.yml pull

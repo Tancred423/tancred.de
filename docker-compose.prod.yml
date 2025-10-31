@@ -13,7 +13,7 @@ services:
       SHORTENER_DOMAIN: ${SHORTENER_DOMAIN}
       MAIN_SITE_URL: ${MAIN_SITE_URL}
     ports:
-      - "8000:8000"
+      - "8001:8000"
     networks:
       - mysql-network
     restart: unless-stopped
