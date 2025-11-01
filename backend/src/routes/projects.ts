@@ -33,7 +33,6 @@ router.post("/projects", authMiddleware, async (ctx: Context) => {
     return;
   }
 
-  // Input validation
   if (typeof title !== "string" || title.length === 0 || title.length > 255) {
     ctx.response.status = 400;
     ctx.response.body = { error: "Title must be between 1 and 255 characters" };
@@ -46,7 +45,6 @@ router.post("/projects", authMiddleware, async (ctx: Context) => {
     return;
   }
 
-  // Validate URL format
   try {
     new URL(url);
   } catch {
@@ -124,7 +122,6 @@ router.put(
     const body = await ctx.request.body.json();
     const { title, description, url, imageUrl, order } = body;
 
-    // Input validation (same as POST)
     if (
       title !== undefined &&
       (typeof title !== "string" || title.length === 0 || title.length > 255)

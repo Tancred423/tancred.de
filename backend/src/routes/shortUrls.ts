@@ -9,7 +9,6 @@ const router = new Router();
 
 const BLOCKED_CODES = ["share"];
 
-// Public redirect handler - increments click counter and redirects
 async function handleRedirect(ctx: Context, code: string) {
   try {
     const [shortUrl] = await db.select().from(shortUrls).where(
@@ -17,12 +16,24 @@ async function handleRedirect(ctx: Context, code: string) {
     ).limit(1);
 
     if (!shortUrl) {
+      const MAIN_SITE_URL = Deno.env.get("MAIN_SITE_URL");
+      if (MAIN_SITE_URL) {
+        let redirectUrl = MAIN_SITE_URL;
+        if (
+          !redirectUrl.startsWith("http://") &&
+          !redirectUrl.startsWith("https://")
+        ) {
+          redirectUrl = `https://${redirectUrl}`;
+        }
+        redirectUrl = redirectUrl.replace(/^http:\/\//, "https://");
+        ctx.response.redirect(redirectUrl);
+        return;
+      }
       ctx.response.status = 404;
       ctx.response.body = { error: "Short URL not found" };
       return;
     }
 
-    // Increment click counter (fire and forget - don't wait for update)
     db.update(shortUrls)
       .set({ clicks: shortUrl.clicks + 1 })
       .where(eq(shortUrls.id, shortUrl.id))
@@ -35,7 +46,6 @@ async function handleRedirect(ctx: Context, code: string) {
         );
       });
 
-    // Redirect to target URL
     ctx.response.redirect(shortUrl.targetUrl);
   } catch (error) {
     console.error("Redirect error:", error);
@@ -44,7 +54,6 @@ async function handleRedirect(ctx: Context, code: string) {
   }
 }
 
-// Export the redirect handler for use in main.ts
 export { handleRedirect };
 
 router.get("/short-urls", authMiddleware, async (ctx: Context) => {
