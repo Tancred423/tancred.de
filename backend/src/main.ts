@@ -58,9 +58,14 @@ mainRouter.get("/", (ctx: Context) => {
         };
         return;
       }
-      const redirectUrl = MAIN_SITE_URL.startsWith("http")
-        ? MAIN_SITE_URL
-        : `https://${MAIN_SITE_URL}`;
+      
+      let redirectUrl = MAIN_SITE_URL;
+      if (!redirectUrl.startsWith("http://") && !redirectUrl.startsWith("https://")) {
+        redirectUrl = `https://${redirectUrl}`;
+      }
+      redirectUrl = redirectUrl.replace(/^http:\/\//, "https://");
+      
+      ctx.response.status = 302;
       ctx.response.redirect(redirectUrl);
       return;
     }
@@ -106,6 +111,11 @@ app.use(async (ctx: Context, next: Next) => {
   }
 
   await next();
+});
+
+app.use((ctx: Context) => {
+  ctx.response.status = 404;
+  ctx.response.body = { error: "Not found" };
 });
 
 const port = 8000;
