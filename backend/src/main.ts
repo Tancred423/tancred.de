@@ -75,7 +75,9 @@ mainRouter.get("/", (ctx: Context) => {
       }
       redirectUrl = redirectUrl.replace(/^http:\/\//, "https://");
 
-      ctx.response.status = 302;
+      redirectUrl = redirectUrl.replace(/\/+$/, "") || redirectUrl;
+
+      console.log(`[ROOT] Sending 302 redirect to: ${redirectUrl}`);
       ctx.response.redirect(redirectUrl);
       return;
     }
