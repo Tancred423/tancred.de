@@ -6,18 +6,6 @@ import shortUrlsRouter, { handleRedirect } from "./routes/shortUrls.ts";
 const app = new Application();
 
 app.use(async (ctx: Context, next: Next) => {
-  const realIp = ctx.request.headers.get("x-real-ip") ||
-    ctx.request.headers.get("x-forwarded-for")?.split(",")[0] ||
-    "unknown";
-  console.log(
-    `[REQUEST] ${ctx.request.method} ${ctx.request.url.pathname} | Host: ${
-      ctx.request.headers.get("host") || "none"
-    } | IP: ${realIp} | URL: ${ctx.request.url}`,
-  );
-  await next();
-});
-
-app.use(async (ctx: Context, next: Next) => {
   const allowedOrigin = Deno.env.get("CORS_ORIGIN") || "*";
 
   ctx.response.headers.set("Access-Control-Allow-Origin", allowedOrigin);
@@ -57,15 +45,8 @@ function isShortenerDomain(host: string): boolean {
 
 mainRouter.get("/", (ctx: Context) => {
   const host = ctx.request.headers.get("host") || "";
-  console.log(`[ROOT] Host: ${host}, Path: ${ctx.request.url.pathname}`);
-  console.log(
-    `[ROOT] SHORTENER_DOMAIN: ${SHORTENER_DOMAIN}, MAIN_SITE_URL: ${MAIN_SITE_URL}`,
-  );
 
   if (isShortenerDomain(host)) {
-    console.log(
-      `[ROOT] Matched shortener domain, redirecting to: ${MAIN_SITE_URL}`,
-    );
     if (MAIN_SITE_URL) {
       const mainSiteHost = normalizeHost(
         MAIN_SITE_URL.replace(/^https?:\/\//, "").split("/")[0],
@@ -89,7 +70,6 @@ mainRouter.get("/", (ctx: Context) => {
 
       redirectUrl = redirectUrl.replace(/\/+$/, "") || redirectUrl;
 
-      console.log(`[ROOT] Sending 302 redirect to: ${redirectUrl}`);
       ctx.response.redirect(redirectUrl);
       return;
     }
@@ -109,12 +89,6 @@ app.use(projectsRouter.routes());
 app.use(shortUrlsRouter.routes());
 
 app.use(async (ctx: Context, next: Next) => {
-  console.log(
-    `[MIDDLEWARE] ${ctx.request.method} ${ctx.request.url.pathname}, Host: ${
-      ctx.request.headers.get("host") || ""
-    }`,
-  );
-
   if (ctx.request.method !== "GET") {
     await next();
     return;
@@ -129,21 +103,13 @@ app.use(async (ctx: Context, next: Next) => {
   const host = ctx.request.headers.get("host") || "";
 
   if (isShortenerDomain(host)) {
-    console.log(
-      `[MIDDLEWARE] Matched shortener domain, checking for code in path: ${path}`,
-    );
     const codeMatch = path.match(/^\/([a-zA-Z0-9_-]+)$/);
     if (codeMatch) {
       const code = codeMatch[1];
       const apiRoutes = ["auth", "projects", "short-urls"];
       if (!apiRoutes.includes(code) && /^[a-zA-Z0-9_-]{1,50}$/.test(code)) {
-        console.log(`[MIDDLEWARE] Handling redirect for code: ${code}`);
         await handleRedirect(ctx, code);
         return;
-      } else {
-        console.log(
-          `[MIDDLEWARE] Code "${code}" is an API route or invalid, skipping`,
-        );
       }
     }
   }

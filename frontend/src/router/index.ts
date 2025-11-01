@@ -7,6 +7,7 @@ import AdminProjectForm from '../views/AdminProjectForm.vue'
 import AdminUrls from '../views/AdminUrls.vue'
 import AdminUrlForm from '../views/AdminUrlForm.vue'
 import Privacy from '../views/Privacy.vue'
+import NotFound from '../views/NotFound.vue'
 
 const routes = [
   {
@@ -59,6 +60,11 @@ const routes = [
     name: 'AdminUrlEdit',
     component: AdminUrlForm,
     meta: { requiresAuth: true },
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    component: NotFound,
   },
 ]
 
