@@ -6,6 +6,15 @@ import shortUrlsRouter, { handleRedirect } from "./routes/shortUrls.ts";
 const app = new Application();
 
 app.use(async (ctx: Context, next: Next) => {
+  console.log(
+    `[REQUEST] ${ctx.request.method} ${ctx.request.url.pathname} | Host: ${
+      ctx.request.headers.get("host") || "none"
+    } | IP: ${ctx.request.ip} | URL: ${ctx.request.url}`,
+  );
+  await next();
+});
+
+app.use(async (ctx: Context, next: Next) => {
   const allowedOrigin = Deno.env.get("CORS_ORIGIN") || "*";
 
   ctx.response.headers.set("Access-Control-Allow-Origin", allowedOrigin);
