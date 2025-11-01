@@ -5,7 +5,6 @@ import shortUrlsRouter, { handleRedirect } from "./routes/shortUrls.ts";
 
 const app = new Application();
 
-// CORS configuration - restrict to frontend domain in production
 app.use(async (ctx: Context, next: Next) => {
   const allowedOrigin = Deno.env.get("CORS_ORIGIN") || "*";
 
@@ -30,26 +29,41 @@ app.use(async (ctx: Context, next: Next) => {
 
 const mainRouter = new Router();
 
-// Get shortener domain from environment variable
 const SHORTENER_DOMAIN = Deno.env.get("SHORTENER_DOMAIN");
-// Get main site URL from environment variable
 const MAIN_SITE_URL = Deno.env.get("MAIN_SITE_URL");
 
-// Root endpoint - check if it's shortener domain, handle accordingly
+function normalizeHost(host: string): string {
+  return host.split(":")[0].toLowerCase();
+}
+
+function isShortenerDomain(host: string): boolean {
+  if (!SHORTENER_DOMAIN) return false;
+  const normalizedHost = normalizeHost(host);
+  const normalizedShortener = normalizeHost(SHORTENER_DOMAIN);
+  return normalizedHost === normalizedShortener;
+}
+
 mainRouter.get("/", (ctx: Context) => {
   const host = ctx.request.headers.get("host") || "";
 
-  // If it's shortener domain without a code, redirect to main site
-  if (SHORTENER_DOMAIN && host.includes(SHORTENER_DOMAIN)) {
+  if (isShortenerDomain(host)) {
     if (MAIN_SITE_URL) {
-      // Ensure it's a full URL (add https:// if missing)
+      const mainSiteHost = normalizeHost(
+        MAIN_SITE_URL.replace(/^https?:\/\//, "").split("/")[0],
+      );
+      if (mainSiteHost === normalizeHost(host)) {
+        ctx.response.body = {
+          message: `${SHORTENER_DOMAIN} URL Shortener`,
+          info: "Use /:code to access short URLs",
+        };
+        return;
+      }
       const redirectUrl = MAIN_SITE_URL.startsWith("http")
         ? MAIN_SITE_URL
         : `https://${MAIN_SITE_URL}`;
       ctx.response.redirect(redirectUrl);
       return;
     }
-    // Fallback if MAIN_SITE_URL not set
     ctx.response.body = {
       message: `${SHORTENER_DOMAIN} URL Shortener`,
       info: "Use /:code to access short URLs",
@@ -60,22 +74,17 @@ mainRouter.get("/", (ctx: Context) => {
   ctx.response.body = { message: "Tancred API" };
 });
 
-// Register API routes first (these take precedence)
 app.use(mainRouter.routes());
 app.use(authRouter.routes());
 app.use(projectsRouter.routes());
-app.use(shortUrlsRouter.routes()); // Admin routes under /short-urls
+app.use(shortUrlsRouter.routes());
 
-// Catch-all redirect handler for short URLs - must be LAST
-// Only handles shortener domain/:code redirects
 app.use(async (ctx: Context, next: Next) => {
-  // Only handle GET requests for redirects
   if (ctx.request.method !== "GET") {
     await next();
     return;
   }
 
-  // Skip if shortener domain is not configured
   if (!SHORTENER_DOMAIN) {
     await next();
     return;
@@ -84,12 +93,10 @@ app.use(async (ctx: Context, next: Next) => {
   const path = ctx.request.url.pathname;
   const host = ctx.request.headers.get("host") || "";
 
-  // Only handle redirects on shortener domain
-  if (host.includes(SHORTENER_DOMAIN)) {
+  if (isShortenerDomain(host)) {
     const codeMatch = path.match(/^\/([a-zA-Z0-9_-]+)$/);
     if (codeMatch) {
       const code = codeMatch[1];
-      // Skip if it's a known API route
       const apiRoutes = ["auth", "projects", "short-urls"];
       if (!apiRoutes.includes(code) && /^[a-zA-Z0-9_-]{1,50}$/.test(code)) {
         await handleRedirect(ctx, code);
@@ -98,7 +105,6 @@ app.use(async (ctx: Context, next: Next) => {
     }
   }
 
-  // If no redirect matched, continue to next middleware
   await next();
 });
 
