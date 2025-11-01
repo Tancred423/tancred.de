@@ -58,13 +58,16 @@ mainRouter.get("/", (ctx: Context) => {
         };
         return;
       }
-      
+
       let redirectUrl = MAIN_SITE_URL;
-      if (!redirectUrl.startsWith("http://") && !redirectUrl.startsWith("https://")) {
+      if (
+        !redirectUrl.startsWith("http://") &&
+        !redirectUrl.startsWith("https://")
+      ) {
         redirectUrl = `https://${redirectUrl}`;
       }
       redirectUrl = redirectUrl.replace(/^http:\/\//, "https://");
-      
+
       ctx.response.status = 302;
       ctx.response.redirect(redirectUrl);
       return;
