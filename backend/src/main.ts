@@ -6,10 +6,13 @@ import shortUrlsRouter, { handleRedirect } from "./routes/shortUrls.ts";
 const app = new Application();
 
 app.use(async (ctx: Context, next: Next) => {
+  const realIp = ctx.request.headers.get("x-real-ip") ||
+    ctx.request.headers.get("x-forwarded-for")?.split(",")[0] ||
+    "unknown";
   console.log(
     `[REQUEST] ${ctx.request.method} ${ctx.request.url.pathname} | Host: ${
       ctx.request.headers.get("host") || "none"
-    } | IP: ${ctx.request.ip} | URL: ${ctx.request.url}`,
+    } | IP: ${realIp} | URL: ${ctx.request.url}`,
   );
   await next();
 });
