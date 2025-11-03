@@ -143,7 +143,10 @@ const titleBox = computed(() => {
 .project-card {
   color: inherit;
   cursor: pointer;
-  display: block;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  margin-bottom: 0;
   text-decoration: none;
 }
 
@@ -159,6 +162,13 @@ const titleBox = computed(() => {
   height: 100%;
   object-fit: cover;
   width: 100%;
+}
+
+.project-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
 }
 
 .project-title {
