@@ -1,5 +1,5 @@
 import { hash } from "bcrypt";
-import { db } from "./connection.ts";
+import { closePool, db } from "./connection.ts";
 import { users } from "./schema.ts";
 import { eq } from "drizzle-orm";
 
@@ -52,13 +52,16 @@ async function initAdmin() {
     console.log(`Admin user '${adminUsername}' created successfully`);
   } catch (error) {
     console.error("Failed to create admin user:", error);
+    await closePool();
     Deno.exit(1);
   }
 }
 
-initAdmin().then(() => {
+initAdmin().then(async () => {
+  await closePool();
   Deno.exit(0);
-}).catch((error) => {
+}).catch(async (error) => {
   console.error("Admin initialization failed:", error);
+  await closePool();
   Deno.exit(1);
 });

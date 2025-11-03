@@ -12,6 +12,7 @@ mysql-data/
 # IDE
 .vscode/
 .idea/
+.idx/
 *.swp
 *.swo
 *~
