@@ -1,8 +1,6 @@
 services:
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    image: ghcr.io/${GITHUB_REPOSITORY:-owner/repo}/backend:latest
     container_name: tancred-backend-prod
     environment:
       DATABASE_URL: ${DATABASE_URL}
@@ -21,12 +19,7 @@ services:
     restart: unless-stopped
 
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-      args:
-        VITE_SHORTENER_DOMAIN: ${SHORTENER_DOMAIN}
-        VITE_API_URL: /api
+    image: ghcr.io/${GITHUB_REPOSITORY:-owner/repo}/frontend:latest
     container_name: tancred-frontend-prod
     ports:
       - "8083:80"
@@ -39,4 +32,3 @@ services:
 networks:
   mysql-network:
     external: true
-

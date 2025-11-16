@@ -12,7 +12,16 @@ services:
     networks:
       - tancred-network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      test: [
+        "CMD",
+        "mysqladmin",
+        "ping",
+        "-h",
+        "localhost",
+        "-u",
+        "root",
+        "-p${MYSQL_ROOT_PASSWORD}",
+      ]
       interval: 5s
       timeout: 3s
       retries: 10
@@ -68,4 +77,3 @@ volumes:
 networks:
   tancred-network:
     driver: bridge
-
