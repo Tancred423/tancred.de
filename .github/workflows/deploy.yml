@@ -69,11 +69,16 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set lowercase repository name
+        id: repo
+        run: |
+          echo "name=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+
       - name: Extract metadata for backend
         id: meta-backend
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository }}/backend
+          images: ghcr.io/${{ steps.repo.outputs.name }}/backend
           tags: |
             type=ref,event=branch
             type=sha,prefix={{branch}}-
@@ -92,7 +97,7 @@ jobs:
         id: meta-frontend
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository }}/frontend
+          images: ghcr.io/${{ steps.repo.outputs.name }}/frontend
           tags: |
             type=ref,event=branch
             type=sha,prefix={{branch}}-
@@ -139,19 +144,20 @@ jobs:
             git checkout origin/main -- docker-compose.prod.yml || git checkout origin/master -- docker-compose.prod.yml
             
             REPO_NAME="${{ github.repository }}"
+            REPO_NAME_LOWER=$(echo "${REPO_NAME}" | tr '[:upper:]' '[:lower:]')
             GHCR_TOKEN="${{ secrets.GITHUB_TOKEN }}"
             GITHUB_ACTOR="${{ github.actor }}"
             
-            # Update docker-compose.prod.yml with correct image names
-            sed -i "s|ghcr.io/\${GITHUB_REPOSITORY:-owner/repo}/backend:latest|ghcr.io/${REPO_NAME}/backend:latest|g" docker-compose.prod.yml
-            sed -i "s|ghcr.io/\${GITHUB_REPOSITORY:-owner/repo}/frontend:latest|ghcr.io/${REPO_NAME}/frontend:latest|g" docker-compose.prod.yml
+            # Update docker-compose.prod.yml with correct image names (lowercase)
+            sed -i "s|ghcr.io/\${GITHUB_REPOSITORY:-owner/repo}/backend:latest|ghcr.io/${REPO_NAME_LOWER}/backend:latest|g" docker-compose.prod.yml
+            sed -i "s|ghcr.io/\${GITHUB_REPOSITORY:-owner/repo}/frontend:latest|ghcr.io/${REPO_NAME_LOWER}/frontend:latest|g" docker-compose.prod.yml
             
             # Log in to GitHub Container Registry
             echo "${GHCR_TOKEN}" | docker login ghcr.io -u "${GITHUB_ACTOR}" --password-stdin
             
-            # Pull latest images
-            docker pull ghcr.io/${REPO_NAME}/backend:latest
-            docker pull ghcr.io/${REPO_NAME}/frontend:latest
+            # Pull latest images (using lowercase repository name)
+            docker pull ghcr.io/${REPO_NAME_LOWER}/backend:latest
+            docker pull ghcr.io/${REPO_NAME_LOWER}/frontend:latest
             
             # Stop and remove existing containers
             docker compose -f docker-compose.prod.yml down || true
