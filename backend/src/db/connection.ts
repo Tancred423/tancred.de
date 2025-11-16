@@ -11,15 +11,27 @@ if (!databaseUrl) {
 
 const dbUrl: string = databaseUrl;
 
-async function createConnectionWithRetry(
+async function createPoolWithRetry(
   maxRetries = 5,
   delay = 2000,
-): Promise<mysql.Connection> {
+): Promise<mysql.Pool> {
   for (let i = 0; i < maxRetries; i++) {
     try {
-      const connection = await mysql.createConnection(dbUrl);
-      console.log("Database connection established");
-      return connection;
+      const pool = mysql.createPool({
+        uri: dbUrl,
+        waitForConnections: true,
+        connectionLimit: 10,
+        queueLimit: 0,
+        enableKeepAlive: true,
+        keepAliveInitialDelay: 0,
+        maxIdle: 10,
+        idleTimeout: 60000,
+        connectTimeout: 10000,
+      });
+
+      await pool.query("SELECT 1");
+      console.log("Database connection pool established");
+      return pool;
     } catch (error) {
       if (i === maxRetries - 1) {
         console.error(
@@ -41,6 +53,18 @@ async function createConnectionWithRetry(
   throw new Error("Failed to establish database connection");
 }
 
-const connection = await createConnectionWithRetry();
+const pool = await createPoolWithRetry();
 
-export const db = drizzle(connection, { schema, mode: "default" });
+pool.on("connection", () => {
+  console.log("New connection established in pool");
+});
+
+pool.on("error", (err: Error) => {
+  console.error("Unexpected error on idle database connection:", err);
+});
+
+export const db = drizzle(pool, { schema, mode: "default" });
+export const closePool = async () => {
+  await pool.end();
+  console.log("Database connection pool closed");
+};

@@ -100,12 +100,14 @@ onMounted(() => {
 }
 
 .projects-grid {
+  align-items: stretch;
   display: grid;
   gap: 2rem;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
 }
 
 .projects-grid-2x2 {
+  align-items: stretch;
   display: grid;
   gap: 2rem;
   grid-template-columns: repeat(2, 1fr);

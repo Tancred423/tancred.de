@@ -1,4 +1,4 @@
-import { db } from "./connection.ts";
+import { closePool, db } from "./connection.ts";
 import { sql } from "drizzle-orm";
 
 async function migrate() {
@@ -38,10 +38,12 @@ async function migrate() {
   `);
 
   console.log("Migrations completed!");
+  await closePool();
   Deno.exit(0);
 }
 
-migrate().catch((error) => {
+migrate().catch(async (error) => {
   console.error("Migration failed:", error);
+  await closePool();
   Deno.exit(1);
 });
