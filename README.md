@@ -4,6 +4,8 @@ A personal portfolio website with project showcase and URL shortener, featuring
 an ASCII-style retro aesthetic. The URL shortener handles redirects for a
 configurable domain (set via `SHORTENER_DOMAIN` environment variable).
 
+[Visit tancred.de](https://tancred.de)
+
 ## Development Setup
 
 1. **Start services:**
