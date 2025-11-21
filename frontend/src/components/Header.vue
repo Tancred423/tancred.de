@@ -39,7 +39,7 @@
             >
               urls
             </router-link>
-            <button @click="handleLogout" class="btn btn-secondary" style="margin-left: 0.5rem">
+            <button class="btn btn-secondary" style="margin-left: 0.5rem" @click="handleLogout">
               logout
             </button>
           </div>
